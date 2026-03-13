@@ -1,67 +1,120 @@
 package com.beautywellness.beauty_wellness.controller;
 
+import com.beautywellness.beauty_wellness.dto.EmployeeRequestDTO;
+import com.beautywellness.beauty_wellness.dto.EmployeeResponseDTO;
+import com.beautywellness.beauty_wellness.mapper.EmployeeMapper;
 import com.beautywellness.beauty_wellness.model.Employee;
 import com.beautywellness.beauty_wellness.model.EmployeeRole;
 import com.beautywellness.beauty_wellness.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-//Controller REST care se ocupă de operațiile asupra angajaților prin cereri HTTP
+//controller care se ocupa de operatiile asupra angajatilor
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
 public class EmployeeController {
 
-    //Introduce serviciul pentru logica de business
     private final EmployeeService employeeService;
-    //Returnează toți angajații
-    @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
+    private final EmployeeMapper employeeMapper;
+
+    //returneaza toti angajatii
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployees() {
+        List<EmployeeResponseDTO> employees = employeeService.getAll()
+                .stream()
+                .map(employeeMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(employees);
     }
-    //Returnează un angajat după ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
-        return employeeService.getEmployeeById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+
+    //returneaza angajatii dupa ID
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getEmployeeById(@PathVariable Long id) {
+        return employeeService.getById(id)
+                .<ResponseEntity<?>>map(e -> ResponseEntity.ok(employeeMapper.toResponseDTO(e)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "error", "Not Found",
+                                "message", "Angajatul cu id-ul " + id + " nu a fost găsit"
+                        )));
     }
-    //Returnează un angajat după email
-    @GetMapping("/email/{email}")
-    public ResponseEntity<Employee> getEmployeeByEmail(@PathVariable String email) {
+
+    //retuneaza angajatii dupa email
+    @GetMapping(value = "/email/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getEmployeeByEmail(@PathVariable String email) {
         return employeeService.getEmployeeByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .<ResponseEntity<?>>map(e -> ResponseEntity.ok(employeeMapper.toResponseDTO(e)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "error", "Not Found",
+                                "message", "Angajatul cu emailul " + email + " nu a fost găsit"
+                        )));
     }
-    //Returnează toți angajații cu o anumită funcție
-    @GetMapping("/role/{role}")
-    public ResponseEntity<List<Employee>> getEmployeesByRole(@PathVariable EmployeeRole role) {
-        return ResponseEntity.ok(employeeService.getEmployeesByRole(role));
+
+    //retuneaza toti angajatii cu o functie
+    @GetMapping(value = "/role/{role}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeesByRole(@PathVariable EmployeeRole role) {
+        List<EmployeeResponseDTO> employees = employeeService.getEmployeesByRole(role)
+                .stream()
+                .map(employeeMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(employees);
     }
-    //Returnează toți angajații activi
-    @GetMapping("/active")
-    public ResponseEntity<List<Employee>> getActiveEmployees() {
-        return ResponseEntity.ok(employeeService.getActiveEmployees());
+
+    //returneaza toti angajatii activi
+    @GetMapping(value = "/active", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<EmployeeResponseDTO>> getActiveEmployees() {
+        List<EmployeeResponseDTO> employees = employeeService.getActiveEmployees()
+                .stream()
+                .map(employeeMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(employees);
     }
-    //Creează un angajat nou
-    @PostMapping
-    public ResponseEntity<Employee> saveEmployee(@RequestBody Employee employee) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(employeeService.saveEmployee(employee));
+
+    //creeaza un angajat
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> saveEmployee(@RequestBody EmployeeRequestDTO dto) {
+        Employee saved = employeeService.save(employeeMapper.toEntity(dto));
+        String message = "Angajatul " + saved.getFirstName() + " " + saved.getLastName() + " a fost creat cu succes";
+        return ResponseEntity.status(HttpStatus.CREATED).body(message);
     }
-    //Actualizează un angajat existent
-    @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id,
-                                                   @RequestBody Employee employee) {
-        return ResponseEntity.ok(employeeService.updateEmployee(id, employee));
+
+    //actualizeaza un angajat
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody EmployeeRequestDTO dto) {
+        try {
+            Employee updated = employeeService.update(id, employeeMapper.toEntity(dto));
+            return ResponseEntity.ok(employeeMapper.toResponseDTO(updated));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "error", "Not Found",
+                            "message", e.getMessage()
+                    ));
+        }
     }
-    //Șterge un angajat după ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        employeeService.deleteEmployee(id);
-        return ResponseEntity.noContent().build();
+
+    //sterge un angajat dupa ID
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
+        try {
+            employeeService.delete(id);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Angajatul cu id-ul " + id + " a fost șters cu succes"
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "error", "Not Found",
+                            "message", e.getMessage()
+                    ));
+        }
     }
 }

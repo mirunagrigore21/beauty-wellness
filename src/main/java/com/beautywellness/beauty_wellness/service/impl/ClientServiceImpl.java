@@ -4,37 +4,40 @@ import com.beautywellness.beauty_wellness.model.Client;
 import com.beautywellness.beauty_wellness.repository.ClientRepository;
 import com.beautywellness.beauty_wellness.service.ClientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-//Clasa care implementează logica de business pentru gestionarea clienților
+//clasa care implementeaza logica pentru gestionare clientilor
 @Service
 @RequiredArgsConstructor
-public class ClientServiceImpl implements ClientService {
-    //Repository utilizat pentru efectuarea operațiilor CRUD asupra entității Client
+public class ClientServiceImpl extends BaseServiceImpl<Client, Long> implements ClientService {
+
+    //repository utilizat pentru efectuarea operatiilor pentru clienti
     private final ClientRepository clientRepository;
-    //Salvează un client nou în baza de date
+
+    //returnează repository-ul specific
     @Override
-    public Client saveClient(Client client) {
-        if (clientRepository.findByEmail(client.getEmail()).isPresent()) {
-            throw new RuntimeException("Email-ul există deja.");
+    protected JpaRepository<Client, Long> getRepository() {
+        return clientRepository;
+    }
+
+    //salvează un client nou
+    @Override
+    public Client save(Client client) {
+        clientRepository.findByEmail(client.getEmail())
+                .ifPresent(c -> { throw new RuntimeException("Email-ul există deja."); });
+        try {
+            return clientRepository.save(client);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la salvarea clientului: " + e.getMessage());
         }
-        return clientRepository.save(client);
     }
-    // Returnează toți clienții din baza de date
+
+    //actualizeaza datele unui client care exista
     @Override
-    public List<Client> getAllClients() {
-        return clientRepository.findAll();
-    }
-    // Caută un client după ID
-    @Override
-    public Optional<Client> getClientById(Long id) {
-        return clientRepository.findById(id);
-    }
-    // Actualizează datele unui client existent
-    @Override
-    public Client updateClient(Long id, Client client) {
+    public Client update(Long id, Client client) {
         Client existingClient = clientRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Clientul nu a fost găsit."));
         existingClient.setFirstName(client.getFirstName());
@@ -43,27 +46,26 @@ public class ClientServiceImpl implements ClientService {
         existingClient.setPhone(client.getPhone());
         existingClient.setBirthDate(client.getBirthDate());
         existingClient.setNotes(client.getNotes());
-        return clientRepository.save(existingClient);
-    }
-    // Șterge un client după ID
-    @Override
-    public void deleteClient(Long id) {
-        if (!clientRepository.existsById(id)) {
-            throw new RuntimeException("Clientul nu a fost găsit.");
+        try {
+            return clientRepository.save(existingClient);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la actualizarea clientului: " + e.getMessage());
         }
-        clientRepository.deleteById(id);
     }
-    // Caută un client după email
+
+    //cauta un client dupa email
     @Override
     public Optional<Client> getClientByEmail(String email) {
         return clientRepository.findByEmail(email);
     }
-    // Caută un client după numărul de telefon
+
+    //caută un client dupa numarul de telefon
     @Override
     public Optional<Client> getClientByPhone(String phone) {
         return clientRepository.findByPhone(phone);
     }
-    // Returnează toți clienții blocați
+
+    //returnează toți clienții blocați
     @Override
     public List<Client> getBlockedClients() {
         return clientRepository.findByBlockedTrue();

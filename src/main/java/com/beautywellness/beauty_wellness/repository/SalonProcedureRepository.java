@@ -1,6 +1,6 @@
 package com.beautywellness.beauty_wellness.repository;
 
-import com.beautywellness.beauty_wellness.model.SalonService;
+import com.beautywellness.beauty_wellness.model.SalonProcedure;
 import com.beautywellness.beauty_wellness.model.ServiceCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,14 +8,14 @@ import java.util.List;
 
 // Interfața care gestionează operațiile cu baza de date
 @Repository
-public interface SalonServiceRepository extends JpaRepository<SalonService, Long> {
+public interface SalonProcedureRepository extends JpaRepository<SalonProcedure, Long> {
 
     // Returnează toate serviciile dintr-o anumită categorie
-    List<SalonService> findByCategory(ServiceCategory category);
+    List<SalonProcedure> findByCategory(ServiceCategory category);
     // Returnează toate serviciile disponibile dintr-o anumită categorie
-    List<SalonService> findByAvailableTrueAndCategory(ServiceCategory category);
+    List<SalonProcedure> findByAvailableTrueAndCategory(ServiceCategory category);
     // Returnează toate serviciile disponibile
-    List<SalonService> findByAvailableTrue();
+    List<SalonProcedure> findByAvailableTrue();
     // Caută servicii după nume
-    List<SalonService> findByNameContainingIgnoreCase(String name);
+    List<SalonProcedure> findByNameContainingIgnoreCase(String name);
 }

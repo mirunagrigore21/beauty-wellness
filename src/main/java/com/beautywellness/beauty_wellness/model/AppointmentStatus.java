@@ -1,18 +1,28 @@
 package com.beautywellness.beauty_wellness.model;
 
-//Enum definește statusurile posibile ale unei programări
+// Enum care definește statusurile posibile ale unei programări
 public enum AppointmentStatus {
 
-    //Programare în așteptare
-    PENDING,
-    //Programare confirmată
-    CONFIRMED,
-    //Programare finalizată
-    COMPLETED,
-    //Programare anulată de client
-    CANCELLED_BY_CLIENT,
-    //Programare anulată de salon
-    CANCELLED_BY_SALON,
-    //Client neprezent
-    NO_SHOW
+
+    PENDING("În așteptare"),
+
+    CONFIRMED("Confirmată"),
+
+    COMPLETED("Finalizată"),
+
+    CANCELLED_BY_CLIENT("Anulată de client"),
+
+    CANCELLED_BY_SALON("Anulată de salon"),
+
+    NO_SHOW("Neprezent");
+
+    private final String displayName;
+
+    AppointmentStatus(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 }

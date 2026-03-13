@@ -24,7 +24,7 @@ public class Appointment {
     //Serviciul pentru care s-a făcut programarea
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
-    private SalonService service;
+    private SalonProcedure service;
     //Data și ora programării
     @Column(nullable = false)
     private LocalDateTime appointmentDateTime;

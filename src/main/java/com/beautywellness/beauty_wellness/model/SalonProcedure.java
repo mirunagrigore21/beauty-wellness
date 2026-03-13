@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Table(name = "salon_services")
-public class SalonService {
+public class SalonProcedure {
 
     //Identificatorul unic al serviciului
     @Id

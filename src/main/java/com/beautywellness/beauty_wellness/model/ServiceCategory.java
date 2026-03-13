@@ -1,18 +1,29 @@
 package com.beautywellness.beauty_wellness.model;
 
-// Enum care definește categoriile de servicii oferite în salon
+//enum care defineste categoriile de servicii oferit
 public enum ServiceCategory {
 
-    // Servicii beauty
-    HAIR,           // Servicii păr
-    NAILS,          // Servicii unghii
-    MAKEUP,         // Machiaj
-    SKIN_CARE,      // Îngrijire ten
-    EYEBROWS,       // Sprâncene
-    EYELASHES,      // Gene
-    // Servicii wellness
-    MASSAGE,        // Masaj
-    SPA,            // Spa
-    AROMATHERAPY,   // Aromaterapie
-    REFLEXOLOGY     // Reflexologie
+    //beauty
+    HAIR("Servicii păr"),
+    NAILS("Servicii unghii"),
+    MAKEUP("Machiaj"),
+    SKIN_CARE("Îngrijire ten"),
+    EYEBROWS("Sprâncene"),
+    EYELASHES("Gene"),
+
+    //wellness
+    MASSAGE("Masaj"),
+    SPA("Spa"),
+    AROMATHERAPY("Aromaterapie"),
+    REFLEXOLOGY("Reflexologie");
+
+    private final String displayName;
+
+    ServiceCategory(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 }

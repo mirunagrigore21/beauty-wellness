@@ -9,41 +9,44 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//Interfața care gestionează operațiile cu baza de date
+//Interfața care gestioneaza operatiile cu baza de date pentru programari
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    //Returnează programările unui client
+    //Returneaza programarile unui client
     List<Appointment> findByClientId(Long clientId);
-    //Returnează programările unui angajat
+    //Returneaza programarile unui angajat
     List<Appointment> findByEmployeeId(Long employeeId);
-    //Returnează programările cu un anumit status
+    //Returnează programările de un anumit tip
     List<Appointment> findByStatus(AppointmentStatus status);
-    //Returnează programările dintr-un interval de timp
+    //Returneaza programarile dintr-un interval de timp
     List<Appointment> findByAppointmentDateTimeBetween(LocalDateTime start, LocalDateTime end);
-    //Returnează programările unui client cu un anumit status
+    //Returnează programările  unui client de un anumit tip
     List<Appointment> findByClientIdAndStatus(Long clientId, AppointmentStatus status);
-    //Returnează programările unui angajat cu un anumit status
+    //Returnează programările  unui angajat de un anumit tip
     List<Appointment> findByEmployeeIdAndStatus(Long employeeId, AppointmentStatus status);
-    //Returnează programările unui angajat dintr-un interval de timp
-    List<Appointment> findByEmployeeIdAndAppointmentDateTimeBetween(Long employeeId, LocalDateTime start, LocalDateTime end);
-    //Verifică dacă există programări ale angajatului în intervalul de timp dat
+    //Returneaza programarile unui angajat dintr-un interval de timp
+    List<Appointment> findByEmployeeIdAndAppointmentDateTimeBetween(
+                                                Long employeeId,
+                                                LocalDateTime start,
+                                                LocalDateTime end
+    );
+    //Returneaza programarile unui angajat dintr-un interval de timp dintr-o categorie
     List<Appointment> findByEmployeeIdAndAppointmentDateTimeBetweenAndStatusNot(
-            Long employeeId,
-            LocalDateTime start,
-            LocalDateTime end,
-            AppointmentStatus status
+                                                Long employeeId,
+                                                LocalDateTime start,
+                                                LocalDateTime end,
+                                                AppointmentStatus status
     );
 
-    //Verifică suprapunerea reală de intervale pentru un angajat si xclude programările anulate si neprezentările
+    //Verifica suprapunerea reala intre intervalele unor programari si exclude programarile anulate si neprezentarile
     @Query("SELECT a FROM Appointment a WHERE a.employee.id = :employeeId " +
-            "AND a.appointmentDateTime < :end " +
-            "AND a.appointmentDateTime > :start " +
+            "AND a.appointmentDateTime BETWEEN :start AND :end " +
             "AND a.status NOT IN :excludedStatuses")
     List<Appointment> findOverlappingAppointments(
-            @Param("employeeId") Long employeeId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end,
+            @Param("employeeId")       Long employeeId,
+            @Param("start")            LocalDateTime start,
+            @Param("end")              LocalDateTime end,
             @Param("excludedStatuses") List<AppointmentStatus> excludedStatuses
     );
 }

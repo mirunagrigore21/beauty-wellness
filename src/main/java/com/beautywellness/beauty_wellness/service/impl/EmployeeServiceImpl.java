@@ -5,38 +5,40 @@ import com.beautywellness.beauty_wellness.model.EmployeeRole;
 import com.beautywellness.beauty_wellness.repository.EmployeeRepository;
 import com.beautywellness.beauty_wellness.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-//Clasa care implementează logica de business pentru gestionarea angajaților
+//clasa care implementeaza logica pentru angajaților
 @Service
 @RequiredArgsConstructor
-public class EmployeeServiceImpl implements EmployeeService {
+public class EmployeeServiceImpl extends BaseServiceImpl<Employee, Long> implements EmployeeService {
 
-    //Repository utilizat pentru efectuarea operațiilor
+    //repository utilizat pentru efectuarea operațiilor CRUD
     private final EmployeeRepository employeeRepository;
-    //Salvează un angajat nou în baza de date
+
+    //returneaza repository ul specific pentru angajat
     @Override
-    public Employee saveEmployee(Employee employee) {
-        if (employeeRepository.findByEmail(employee.getEmail()).isPresent()) {
-            throw new RuntimeException("Email-ul există deja");
+    protected JpaRepository<Employee, Long> getRepository() {
+        return employeeRepository;
+    }
+
+    //salveaza un angajat nou
+    @Override
+    public Employee save(Employee employee) {
+        employeeRepository.findByEmail(employee.getEmail())
+                .ifPresent(e -> { throw new RuntimeException("Email-ul există deja."); });
+        try {
+            return employeeRepository.save(employee);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la salvarea angajatului: " + e.getMessage());
         }
-        return employeeRepository.save(employee);
     }
-    //Returnează toți angajații din baza de date
+
+    //actualizeaza datele unui angajat
     @Override
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
-    }
-    //Caută un angajat după ID
-    @Override
-    public Optional<Employee> getEmployeeById(Long id) {
-        return employeeRepository.findById(id);
-    }
-    //Actualizează datele unui angajat existent
-    @Override
-    public Employee updateEmployee(Long id, Employee employee) {
+    public Employee update(Long id, Employee employee) {
         Employee existingEmployee = employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Angajatul nu a fost găsit."));
         existingEmployee.setFirstName(employee.getFirstName());
@@ -45,27 +47,25 @@ public class EmployeeServiceImpl implements EmployeeService {
         existingEmployee.setPhone(employee.getPhone());
         existingEmployee.setRole(employee.getRole());
         existingEmployee.setActive(employee.getActive());
-        return employeeRepository.save(existingEmployee);
-    }
-    //Șterge un angajat după ID
-    @Override
-    public void deleteEmployee(Long id) {
-        if (!employeeRepository.existsById(id)) {
-            throw new RuntimeException("Angajatul nu a fost găsit.");
+        try {
+            return employeeRepository.save(existingEmployee);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la actualizarea angajatului: " + e.getMessage());
         }
-        employeeRepository.deleteById(id);
     }
-    //Caută un angajat după email
+
+    //cauta un angajat dupa email
     @Override
     public Optional<Employee> getEmployeeByEmail(String email) {
         return employeeRepository.findByEmail(email);
     }
-    //Returnează toți angajații cu o anumită funcție
+
+    //returneaza toti angajatii cu o functie
     @Override
     public List<Employee> getEmployeesByRole(EmployeeRole role) {
         return employeeRepository.findByRole(role);
     }
-    //Returnează toți angajații activi
+
     @Override
     public List<Employee> getActiveEmployees() {
         return employeeRepository.findByActiveTrue();

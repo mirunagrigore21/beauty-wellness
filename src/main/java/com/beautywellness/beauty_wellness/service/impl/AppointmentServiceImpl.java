@@ -12,18 +12,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-//Clasa care implementează logica pentru gestionarea programărilor
+//clasa care implementeaza logica pentru gestionarea programarilor
 @Service
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
 
-    //Repository pentru operațiile CRUD asupra programărilor
+    //repository pentru operatiile CRUD asupra programarilor
     private final AppointmentRepository appointmentRepository;
 
-    //Repository pentru actualizarea datelor clientului (no-show, blocare)
+    //repository pentru actualizarea datelor clientului (no-show, blocare)
     private final ClientRepository clientRepository;
 
-    //Salvează o programare nouă după verificarea disponibilității angajatului
+    //salveaza o programare noua dupa ce verifica daca angajatul este disponibil
     @Override
     public Appointment saveAppointment(Appointment appointment) {
         LocalDateTime start = appointment.getAppointmentDateTime();
@@ -31,23 +31,31 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!isEmployeeAvailable(appointment.getEmployee().getId(), start, end)) {
             throw new RuntimeException("Angajatul nu este disponibil în intervalul selectat");
         }
-        return appointmentRepository.save(appointment);
+        try {
+            return appointmentRepository.save(appointment);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la salvarea programării: " + e.getMessage());
+        }
     }
-
-    //Returnează toate programările din baza de date
+    //returneaza toate programările
     @Override
     public List<Appointment> getAllAppointments() {
-        return appointmentRepository.findAll();
+        try {
+            return appointmentRepository.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programărilor: " + e.getMessage());
+        }
     }
-
-    //Caută o programare după ID
+    //cauta o programare dupa ID
     @Override
     public Optional<Appointment> getAppointmentById(Long id) {
-        return appointmentRepository.findById(id);
+        try {
+            return appointmentRepository.findById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programării: " + e.getMessage());
+        }
     }
-
-    //Actualizează datele unei programări existente
-    //Verifică disponibilitatea angajatului pentru noul interval
+    //actualizeaza datele unei programări existente si verifica daca angajatul este disponibil pentru modificari
     @Override
     public Appointment updateAppointment(Long id, Appointment appointment) {
         Appointment existing = appointmentRepository.findById(id)
@@ -65,133 +73,186 @@ public class AppointmentServiceImpl implements AppointmentService {
         existing.setService(appointment.getService());
         existing.setAppointmentDateTime(appointment.getAppointmentDateTime());
         existing.setNotes(appointment.getNotes());
-        return appointmentRepository.save(existing);
+
+        try {
+            return appointmentRepository.save(existing);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la actualizarea programării: " + e.getMessage());
+        }
     }
 
-    //Șterge o programare după ID
+    //sterge o programare dupa ID
     @Override
     public void deleteAppointment(Long id) {
-        if (!appointmentRepository.existsById(id)) {
-            throw new RuntimeException("Programarea nu a fost găsită");
+        try {
+            appointmentRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la ștergerea programării: " + e.getMessage());
         }
-        appointmentRepository.deleteById(id);
     }
 
-    //Returnează toate programările unui client
+    //returneaza toate programarile pe care le are un client
     @Override
     public List<Appointment> getAppointmentsByClient(Long clientId) {
-        return appointmentRepository.findByClientId(clientId);
+        try {
+            return appointmentRepository.findByClientId(clientId);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programărilor clientului: " + e.getMessage());
+        }
     }
 
-    //Returnează toate programările unui angajat
+    //returneaza toate programarile pe care le are un angajat
     @Override
     public List<Appointment> getAppointmentsByEmployee(Long employeeId) {
-        return appointmentRepository.findByEmployeeId(employeeId);
+        try {
+            return appointmentRepository.findByEmployeeId(employeeId);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programărilor angajatului: " + e.getMessage());
+        }
     }
 
-    //Returnează toate programările cu un anumit status
+    //returneaza toate programarile de un anumit tip
     @Override
     public List<Appointment> getAppointmentsByStatus(AppointmentStatus status) {
-        return appointmentRepository.findByStatus(status);
+        try {
+            return appointmentRepository.findByStatus(status);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programărilor după status: " + e.getMessage());
+        }
     }
 
-    //Returnează toate programările dintr-un interval de timp
+    //returneaza toate programarile dintr-un interval de timp
     @Override
     public List<Appointment> getAppointmentsBetween(LocalDateTime start, LocalDateTime end) {
-        return appointmentRepository.findByAppointmentDateTimeBetween(start, end);
+        try {
+            return appointmentRepository.findByAppointmentDateTimeBetween(start, end);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programărilor din interval: " + e.getMessage());
+        }
     }
 
-    //Returnează toate programările unui angajat cu un anumit status
+    //returneaza toate programarile unui angajat de un anumit tip
     @Override
     public List<Appointment> getAppointmentsByEmployeeAndStatus(Long employeeId, AppointmentStatus status) {
-        return appointmentRepository.findByEmployeeIdAndStatus(employeeId, status);
+        try {
+            return appointmentRepository.findByEmployeeIdAndStatus(employeeId, status);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programărilor angajatului după status: " + e.getMessage());
+        }
     }
-
-    //Returnează toate programările unui client cu un anumit status
+    //returneaza toate programarile unui client de un anumit tip
     @Override
     public List<Appointment> getAppointmentsByClientAndStatus(Long clientId, AppointmentStatus status) {
-        return appointmentRepository.findByClientIdAndStatus(clientId, status);
+        try {
+            return appointmentRepository.findByClientIdAndStatus(clientId, status);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la obținerea programărilor clientului după status: " + e.getMessage());
+        }
     }
 
-    //Verifică dacă angajatul este disponibil în intervalul de timp dat
-    //Folosește verificare reală de suprapunere a intervalelor
+    //verifica daca angajatul este disponibil in intervalul de timp dat
     @Override
     public boolean isEmployeeAvailable(Long employeeId, LocalDateTime start, LocalDateTime end) {
-        List<AppointmentStatus> excludedStatuses = List.of(
-                AppointmentStatus.CANCELLED_BY_CLIENT,
-                AppointmentStatus.CANCELLED_BY_SALON,
-                AppointmentStatus.NO_SHOW
-        );
-        List<Appointment> overlapping = appointmentRepository.findOverlappingAppointments(
-                employeeId, start, end, excludedStatuses
-        );
-        return overlapping.isEmpty();
+        try {
+            List<AppointmentStatus> excludedStatuses = List.of(
+                    AppointmentStatus.CANCELLED_BY_CLIENT,
+                    AppointmentStatus.CANCELLED_BY_SALON,
+                    AppointmentStatus.NO_SHOW
+            );
+            List<Appointment> overlapping = appointmentRepository.findOverlappingAppointments(
+                    employeeId, start, end, excludedStatuses
+            );
+            return overlapping.isEmpty();
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la verificarea disponibilității angajatului: " + e.getMessage());
+        }
     }
 
-    //Confirmă o programare
+    //confirma o programare
     @Override
     public Appointment confirmAppointment(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
         appointment.setStatus(AppointmentStatus.CONFIRMED);
-        return appointmentRepository.save(appointment);
+        try {
+            return appointmentRepository.save(appointment);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la confirmarea programării: " + e.getMessage());
+        }
     }
 
-    //Anulează o programare de către client
+    //anuleaza o programare de catre client
     @Override
     public Appointment cancelByClient(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
         appointment.setStatus(AppointmentStatus.CANCELLED_BY_CLIENT);
-        return appointmentRepository.save(appointment);
+        try {
+            return appointmentRepository.save(appointment);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la anularea programării de către client: " + e.getMessage());
+        }
     }
 
-    //Anulează o programare de către salon
+    //anuleaza o programare de catre salon
     @Override
     public Appointment cancelBySalon(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
         appointment.setStatus(AppointmentStatus.CANCELLED_BY_SALON);
-        return appointmentRepository.save(appointment);
+        try {
+            return appointmentRepository.save(appointment);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la anularea programării de către salon: " + e.getMessage());
+        }
     }
 
-    //Marchează o programare ca neprezentare
-    //Crește scorul no-show al clientului și îl blochează dacă ajunge la 3
+    //marcheaza o programare pentru neprezentare si creste scorul no-show
     @Override
     public Appointment markNoShow(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
         appointment.setStatus(AppointmentStatus.NO_SHOW);
 
-        // Actualizează scorul no-show al clientului
         Client client = appointment.getClient();
         int newScore = client.getNoShowScore() + 1;
         client.setNoShowScore(newScore);
 
-        // Blochează clientul dacă are 3 sau mai multe neprezentări
         if (newScore >= 3) {
             client.setBlocked(true);
         }
-        clientRepository.save(client);
 
-        return appointmentRepository.save(appointment);
+        try {
+            clientRepository.save(client);
+            return appointmentRepository.save(appointment);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la marcarea neprezentării: " + e.getMessage());
+        }
     }
 
-    //Marchează o programare ca finalizată
+    //marcheaza o programare ca finalizata
     @Override
     public Appointment completeAppointment(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
         appointment.setStatus(AppointmentStatus.COMPLETED);
-        return appointmentRepository.save(appointment);
+        try {
+            return appointmentRepository.save(appointment);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la finalizarea programării: " + e.getMessage());
+        }
     }
 
-    //Actualizează statusul unei programări
+    //actualizeaza statusul unei programari
     @Override
     public Appointment updateAppointmentStatus(Long id, AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
         appointment.setStatus(status);
-        return appointmentRepository.save(appointment);
+        try {
+            return appointmentRepository.save(appointment);
+        } catch (Exception e) {
+            throw new RuntimeException("Eroare la actualizarea statusului programării: " + e.getMessage());
+        }
     }
 }
