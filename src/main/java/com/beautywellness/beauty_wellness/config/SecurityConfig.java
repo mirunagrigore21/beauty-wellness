@@ -49,7 +49,8 @@ public class SecurityConfig {
 
                         //toti autentificatii pot accesa programarile
                         .requestMatchers("/api/appointments/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
-
+                        //ADMIN si EMPLOYEE pot gestiona programul de lucru
+                        .requestMatchers("/api/work-schedules/**").hasAnyRole("ADMIN", "EMPLOYEE")
                         //orice alt request necesita autentificare
                         .anyRequest().authenticated()
                 )

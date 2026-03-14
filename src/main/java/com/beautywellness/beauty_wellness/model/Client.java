@@ -5,46 +5,58 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-//Clasa care reprezintă un client în aplicație - corespunde tabelului 'clients' din baza de date.
+//clasa care reprezinta un client în aplicație
 
 @Data
 @Entity
 @Table(name = "clients")
 public class Client {
 
-    //Identificatorul unic al clientului,generat automat de baza de date
+    //identificatorul unic al clientului
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //Prenumele clientului nu poate fi lasat necompletat
+    //prenumele clientului
     @Column(nullable = false)
     private String firstName;
-    //Numele de familie al clientului nu poate fi lasat necompletat
+    //numele de familie al clientului
     @Column(nullable = false)
     private String lastName;
-    //Adresa de email a clientului trebuie să fie unică și nu poate fi lasata necompletata
+    //adresa de email a clientului
     @Column(unique = true, nullable = false)
     private String email;
-    //Numarul de telefon trebuie sa fie completat
+    //numarul de telefon
     @Column(nullable = false, unique = true)
     private String phone;
-    //Data de naștere a clientului este introdusa pentru acordarea reducerii de ziua de naștere
+    //data de naștere a clientului
     private LocalDate birthDate;
-    //Scorul no-show al clientului pe care il vom monitoriza
+    //scorul no-show al clientului pe care il vom monitoriza
     @Column(columnDefinition = "INT DEFAULT 0")
     private Integer noShowScore = 0;
-    //Pentru a vedea daca clientul este blocat pentru un numar prea mare de neprezentari
+    //pentru a vedea daca clientul este blocat pentru un numar prea mare de neprezentari
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean blocked = false;
-    //Punctele de fidelitate a clientului
+    //motivul blocarii contului
+    @Column(columnDefinition = "TEXT")
+    private String blockedReason;
+    //mesaj de avertisment pentru 2 no-show-uri
+    @Column(columnDefinition = "TEXT")
+    private String warningMessage;
+    //punctele de fidelitate
     @Column(columnDefinition = "INT DEFAULT 0")
     private Integer loyaltyPoints = 0;
-    //Observatiile suplimentare ale clientului
+    //indica daca clientul are un cupon de reducere disponibil
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean hasCoupon = false;
+    //codul cuponului de reducere generat automat
+    @Column(unique = true)
+    private String couponCode;
+    //observatiile suplimentare
     @Column(columnDefinition = "TEXT")
     private String notes;
-    // Data si ora inregistrarii in sistem a clientului(setata automat pentru prima data)
+    //data si ora inregistrarii in sistem
     private LocalDateTime registeredAt;
-    //Evidenta cand este clientul salvat in baza de date
+    //evidenta cand este clientul salvat in baza de date
     @PrePersist
     protected void onCreate() {
         registeredAt = LocalDateTime.now();

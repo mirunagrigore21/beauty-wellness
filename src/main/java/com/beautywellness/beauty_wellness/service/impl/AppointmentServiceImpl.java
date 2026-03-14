@@ -219,28 +219,48 @@ public class AppointmentServiceImpl implements AppointmentService {
         client.setNoShowScore(newScore);
 
         if (newScore >= 3) {
+            //blocam clientul dupa 3 no-show-uri
             client.setBlocked(true);
+            client.setBlockedReason("Cont blocat automat dupa 3 neprezentari");
+        } else if (newScore == 2) {
+            //avertisment dupa 2 no-show-uri
+            client.setWarningMessage("Atentie! Ai acumulat 2 neprezentari. La urmatoarea neprezentare contul tau va fi blocat!");
         }
 
         try {
             clientRepository.save(client);
             return appointmentRepository.save(appointment);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la marcarea neprezentării: " + e.getMessage());
+            throw new RuntimeException("Eroare la marcarea neprezentarii: " + e.getMessage());
         }
     }
 
-    //marcheaza o programare ca finalizata
+    //marcheaza o programare ca finalizata si adauga puncte de loialitate
     @Override
     public Appointment completeAppointment(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
         appointment.setStatus(AppointmentStatus.COMPLETED);
+
+        //adauga punct de loialitate clientului
+        Client client = appointment.getClient();
+        int newPoints = client.getLoyaltyPoints() + 1;
+        client.setLoyaltyPoints(newPoints);
+
+        //verifica daca clientul a acumulat 5 puncte ofera cupon si reseteaza
+        if (newPoints >= 5) {
+            client.setHasCoupon(true);
+            client.setCouponCode("BW-" + client.getId() + "-" + System.currentTimeMillis());
+            client.setLoyaltyPoints(0);
+        }
+
         try {
+            clientRepository.save(client);
             return appointmentRepository.save(appointment);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la finalizarea programării: " + e.getMessage());
+            throw new RuntimeException("Eroare la finalizarea programarii: " + e.getMessage());
         }
+
     }
 
     //actualizeaza statusul unei programari
