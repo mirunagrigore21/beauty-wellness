@@ -7,14 +7,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-//Implementarea serviciului care încarcă detaliile utilizatorului din baza de date
+//implementarea serviciului care incarca detaliile utilizatorului din baza de date
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    //Caută utilizatorul după email — folosit de Spring Security la autentificare
+    //caută utilizatorul după email — folosit de Spring Security la autentificare
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)

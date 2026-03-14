@@ -7,16 +7,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-//Interfața care gestionează operațiile cu baza de date
+//interfata care gestioneaza operatiile cu baza de date
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-    //Caută un angajat după adresa de email
+    //cauta un angajat dupa adresa de email
     Optional<Employee> findByEmail(String email);
-    //Caută un angajat după numărul de telefon
+    //cauta un angajat dupa numarul de telefon
     Optional<Employee> findByPhone(String phone);
-    //Returnează toți angajații cu o anumită funcție
+    //returneaza toti angajatii cu o anumită funcție
     List<Employee> findByRole(EmployeeRole role);
-    //Returnează toți angajații activi
+    //returneaza toti angajatii activi
     List<Employee> findByActiveTrue();
 }

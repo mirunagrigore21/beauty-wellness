@@ -4,40 +4,40 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-//Clasa care reprezintă o programare în aplicația
+//clasa care reprezinta o programare
 @Data
 @Entity
 @Table(name = "appointments")
 public class Appointment {
-    //Identificatorul unic al programării
+    //identificatorul unic al programarii
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //Clientul care a făcut programarea
+    //clientul care a făcut programarea
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
-    //Angajatul la care s-a făcut programarea
+    //angajatul la care s-a facut programarea
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
-    //Serviciul pentru care s-a făcut programarea
+    //serviciul pentru care s-a facut programarea
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
     private SalonProcedure service;
-    //Data și ora programării
+    //data si ora
     @Column(nullable = false)
     private LocalDateTime appointmentDateTime;
-    //Statusul programării
+    //statusul programarii
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AppointmentStatus status = AppointmentStatus.PENDING;
-    //Observații suplimentare
+    //observatii suplimentare
     @Column(columnDefinition = "TEXT")
     private String notes;
-    // Data și ora la care a fost creată programarea
+    //data si ora - creata programarea
     private LocalDateTime createdAt;
-    // Metodă apelată automat de JPA înainte de salvarea entității în baza de date
+    //metoda apelata automat de JPA inainte de salvarea entitații
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

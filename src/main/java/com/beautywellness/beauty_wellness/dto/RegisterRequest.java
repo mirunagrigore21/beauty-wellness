@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-//Datele trimise de utilizator la înregistrare
+//datele trimise de utilizator la inregistrare
 @Data
 @Builder
 @NoArgsConstructor

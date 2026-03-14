@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-//Interfață pentru accesul la baza de date pentru entitatea User
+//interfata pentru accesul la baza de date pentru entitatea User
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    //Găsește un utilizator după email
+    //gaseste un utilizator dupa email
     Optional<User> findByEmail(String email);
 }

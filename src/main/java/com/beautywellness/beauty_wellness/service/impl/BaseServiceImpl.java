@@ -8,7 +8,7 @@ import java.util.Optional;
 //implementare generica pentru operatiile comune CRUD
 public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
 
-    //returneaza repository-ul specific fiecarei entități
+    //returneaza repository-ul specific fiecarei entitati
     protected abstract JpaRepository<T, ID> getRepository();
 
     @Override

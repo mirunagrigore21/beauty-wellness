@@ -11,7 +11,7 @@ import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Map;
 
-// Controller REST pentru programul de lucru al angajatilor
+//controller REST pentru programul de lucru- angajati
 @RestController
 @RequestMapping("/api/work-schedules")
 @RequiredArgsConstructor
@@ -19,19 +19,19 @@ public class WorkScheduleController {
 
     private final WorkScheduleService workScheduleService;
 
-    // Returneaza programul de lucru al unui angajat
+    //returneaza programul de lucru al unui angajat
     @GetMapping(value = "/employee/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<WorkSchedule>> getWorkScheduleByEmployee(@PathVariable Long employeeId) {
         return ResponseEntity.ok(workScheduleService.getWorkScheduleByEmployee(employeeId));
     }
 
-    // Returneaza zilele lucratoare ale unui angajat
+    //returneaza zilele lucratoare ale unui angajat
     @GetMapping(value = "/employee/{employeeId}/working-days", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<WorkSchedule>> getWorkingDays(@PathVariable Long employeeId) {
         return ResponseEntity.ok(workScheduleService.getWorkingDays(employeeId));
     }
 
-    // Adauga un program de lucru
+    //adauga un program de lucru
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveWorkSchedule(@RequestBody WorkSchedule workSchedule) {
         WorkSchedule saved = workScheduleService.saveWorkSchedule(workSchedule);
@@ -39,7 +39,7 @@ public class WorkScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(message);
     }
 
-    // Actualizeaza un program de lucru
+    //actualizeaza un program de lucru
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateWorkSchedule(@PathVariable Long id, @RequestBody WorkSchedule workSchedule) {
         try {
@@ -50,7 +50,7 @@ public class WorkScheduleController {
         }
     }
 
-    // Marcheaza o zi ca zi libera
+    //marcheaza o zi - libera
     @PatchMapping(value = "/employee/{employeeId}/day-off/{dayOfWeek}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> markDayOff(@PathVariable Long employeeId, @PathVariable DayOfWeek dayOfWeek) {
         try {
@@ -61,7 +61,7 @@ public class WorkScheduleController {
         }
     }
 
-    // Marcheaza o zi ca zi lucratoare
+    //marcheaza o zi - lucratoare
     @PatchMapping(value = "/employee/{employeeId}/working/{dayOfWeek}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> markDayWorking(@PathVariable Long employeeId, @PathVariable DayOfWeek dayOfWeek) {
         try {
@@ -72,7 +72,7 @@ public class WorkScheduleController {
         }
     }
 
-    // Sterge un program de lucru
+    //sterge un program de lucru
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteWorkSchedule(@PathVariable Long id) {
         try {

@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
-//DTO pentru trimiterea datelor unei proceduri către frontend
+//DTO pentru trimiterea datelor unei proceduri catre frontend
 @Data
 @Builder
 @NoArgsConstructor

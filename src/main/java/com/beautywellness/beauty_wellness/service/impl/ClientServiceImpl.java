@@ -17,13 +17,13 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long> implements 
     //repository utilizat pentru efectuarea operatiilor pentru clienti
     private final ClientRepository clientRepository;
 
-    //returnează repository-ul specific
+    //returneaza repository-ul specific
     @Override
     protected JpaRepository<Client, Long> getRepository() {
         return clientRepository;
     }
 
-    //salvează un client nou
+    //salveaza un client nou
     @Override
     public Client save(Client client) {
         clientRepository.findByEmail(client.getEmail())
@@ -59,13 +59,13 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long> implements 
         return clientRepository.findByEmail(email);
     }
 
-    //caută un client dupa numarul de telefon
+    //cauta un client dupa numarul de telefon
     @Override
     public Optional<Client> getClientByPhone(String phone) {
         return clientRepository.findByPhone(phone);
     }
 
-    //returnează toți clienții blocați
+    //returneaza toti clientii blocați
     @Override
     public List<Client> getBlockedClients() {
         return clientRepository.findByBlockedTrue();

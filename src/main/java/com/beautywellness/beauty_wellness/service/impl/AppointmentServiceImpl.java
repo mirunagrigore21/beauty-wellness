@@ -1,8 +1,6 @@
 package com.beautywellness.beauty_wellness.service.impl;
 
-import com.beautywellness.beauty_wellness.model.Appointment;
-import com.beautywellness.beauty_wellness.model.AppointmentStatus;
-import com.beautywellness.beauty_wellness.model.Client;
+import com.beautywellness.beauty_wellness.model.*;
 import com.beautywellness.beauty_wellness.repository.AppointmentRepository;
 import com.beautywellness.beauty_wellness.repository.ClientRepository;
 import com.beautywellness.beauty_wellness.service.AppointmentService;
@@ -28,44 +26,70 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Appointment saveAppointment(Appointment appointment) {
         LocalDateTime start = appointment.getAppointmentDateTime();
         LocalDateTime end = start.plusMinutes(appointment.getService().getDurationMinutes());
+
+        //verifica daca angajatul poate efectua serviciul selectat
+        if (!isEmployeeEligibleForService(
+                appointment.getEmployee().getRole(),
+                appointment.getService().getCategory())) {
+            throw new RuntimeException("Angajatul " +
+                    appointment.getEmployee().getFirstName() + " " +
+                    appointment.getEmployee().getLastName() +
+                    " nu poate efectua serviciul " +
+                    appointment.getService().getName());
+        }
+
         if (!isEmployeeAvailable(appointment.getEmployee().getId(), start, end)) {
-            throw new RuntimeException("Angajatul nu este disponibil în intervalul selectat");
+            throw new RuntimeException("Angajatul nu este disponibil in intervalul selectat");
         }
         try {
             return appointmentRepository.save(appointment);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la salvarea programării: " + e.getMessage());
+            throw new RuntimeException("Eroare la salvarea programarii: " + e.getMessage());
         }
     }
-    //returneaza toate programările
+
+    //returneaza toate programarile
     @Override
     public List<Appointment> getAllAppointments() {
         try {
             return appointmentRepository.findAll();
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programărilor: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarilor: " + e.getMessage());
         }
     }
+
     //cauta o programare dupa ID
     @Override
     public Optional<Appointment> getAppointmentById(Long id) {
         try {
             return appointmentRepository.findById(id);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programării: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarii: " + e.getMessage());
         }
     }
-    //actualizeaza datele unei programări existente si verifica daca angajatul este disponibil pentru modificari
+
+    //actualizeaza datele unei programari existente si verifica daca angajatul este disponibil
     @Override
     public Appointment updateAppointment(Long id, Appointment appointment) {
         Appointment existing = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
 
         LocalDateTime start = appointment.getAppointmentDateTime();
         LocalDateTime end = start.plusMinutes(appointment.getService().getDurationMinutes());
 
+        //verifica daca angajatul poate efectua serviciul selectat
+        if (!isEmployeeEligibleForService(
+                appointment.getEmployee().getRole(),
+                appointment.getService().getCategory())) {
+            throw new RuntimeException("Angajatul " +
+                    appointment.getEmployee().getFirstName() + " " +
+                    appointment.getEmployee().getLastName() +
+                    " nu poate efectua serviciul " +
+                    appointment.getService().getName());
+        }
+
         if (!isEmployeeAvailable(appointment.getEmployee().getId(), start, end)) {
-            throw new RuntimeException("Angajatul nu este disponibil în intervalul selectat");
+            throw new RuntimeException("Angajatul nu este disponibil in intervalul selectat");
         }
 
         existing.setClient(appointment.getClient());
@@ -77,7 +101,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             return appointmentRepository.save(existing);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la actualizarea programării: " + e.getMessage());
+            throw new RuntimeException("Eroare la actualizarea programarii: " + e.getMessage());
         }
     }
 
@@ -87,37 +111,37 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             appointmentRepository.deleteById(id);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la ștergerea programării: " + e.getMessage());
+            throw new RuntimeException("Eroare la stergerea programarii: " + e.getMessage());
         }
     }
 
-    //returneaza toate programarile pe care le are un client
+    //returneaza toate programarile unui client
     @Override
     public List<Appointment> getAppointmentsByClient(Long clientId) {
         try {
             return appointmentRepository.findByClientId(clientId);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programărilor clientului: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarilor clientului: " + e.getMessage());
         }
     }
 
-    //returneaza toate programarile pe care le are un angajat
+    //returneaza toate programarile unui angajat
     @Override
     public List<Appointment> getAppointmentsByEmployee(Long employeeId) {
         try {
             return appointmentRepository.findByEmployeeId(employeeId);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programărilor angajatului: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarilor angajatului: " + e.getMessage());
         }
     }
 
-    //returneaza toate programarile de un anumit tip
+    //returneaza toate programarile de un anumit status
     @Override
     public List<Appointment> getAppointmentsByStatus(AppointmentStatus status) {
         try {
             return appointmentRepository.findByStatus(status);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programărilor după status: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarilor dupa status: " + e.getMessage());
         }
     }
 
@@ -127,26 +151,27 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             return appointmentRepository.findByAppointmentDateTimeBetween(start, end);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programărilor din interval: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarilor din interval: " + e.getMessage());
         }
     }
 
-    //returneaza toate programarile unui angajat de un anumit tip
+    //returneaza toate programarile unui angajat de un anumit status
     @Override
     public List<Appointment> getAppointmentsByEmployeeAndStatus(Long employeeId, AppointmentStatus status) {
         try {
             return appointmentRepository.findByEmployeeIdAndStatus(employeeId, status);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programărilor angajatului după status: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarilor angajatului dupa status: " + e.getMessage());
         }
     }
-    //returneaza toate programarile unui client de un anumit tip
+
+    //returneaza toate programarile unui client de un anumit status
     @Override
     public List<Appointment> getAppointmentsByClientAndStatus(Long clientId, AppointmentStatus status) {
         try {
             return appointmentRepository.findByClientIdAndStatus(clientId, status);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la obținerea programărilor clientului după status: " + e.getMessage());
+            throw new RuntimeException("Eroare la obtinerea programarilor clientului dupa status: " + e.getMessage());
         }
     }
 
@@ -164,20 +189,38 @@ public class AppointmentServiceImpl implements AppointmentService {
             );
             return overlapping.isEmpty();
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la verificarea disponibilității angajatului: " + e.getMessage());
+            throw new RuntimeException("Eroare la verificarea disponibilitatii angajatului: " + e.getMessage());
         }
+    }
+
+    //verifica daca angajatul poate efectua serviciul selectat
+    private boolean isEmployeeEligibleForService(EmployeeRole employeeRole, ServiceCategory serviceCategory) {
+        return switch (employeeRole) {
+            case HAIR_STYLIST -> serviceCategory == ServiceCategory.HAIR;
+            case MANICURIST -> serviceCategory == ServiceCategory.NAILS;
+            case PEDICURIST -> serviceCategory == ServiceCategory.NAILS;
+            case COSMETICIAN -> serviceCategory == ServiceCategory.SKIN_CARE;
+            case MAKEUP_ARTIST -> serviceCategory == ServiceCategory.MAKEUP;
+            case EYEBROW_SPECIALIST -> serviceCategory == ServiceCategory.EYEBROWS;
+            case EYELASH_TECHNICIAN -> serviceCategory == ServiceCategory.EYELASHES;
+            case MASSAGE_THERAPIST -> serviceCategory == ServiceCategory.MASSAGE;
+            case SPA_THERAPIST -> serviceCategory == ServiceCategory.SPA;
+            case AROMATHERAPIST -> serviceCategory == ServiceCategory.AROMATHERAPY;
+            case REFLEXOLOGIST -> serviceCategory == ServiceCategory.REFLEXOLOGY;
+            case RECEPTIONIST, MANAGER -> false;
+        };
     }
 
     //confirma o programare
     @Override
     public Appointment confirmAppointment(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
         appointment.setStatus(AppointmentStatus.CONFIRMED);
         try {
             return appointmentRepository.save(appointment);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la confirmarea programării: " + e.getMessage());
+            throw new RuntimeException("Eroare la confirmarea programarii: " + e.getMessage());
         }
     }
 
@@ -185,12 +228,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Appointment cancelByClient(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
         appointment.setStatus(AppointmentStatus.CANCELLED_BY_CLIENT);
         try {
             return appointmentRepository.save(appointment);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la anularea programării de către client: " + e.getMessage());
+            throw new RuntimeException("Eroare la anularea programarii de catre client: " + e.getMessage());
         }
     }
 
@@ -198,12 +241,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Appointment cancelBySalon(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
         appointment.setStatus(AppointmentStatus.CANCELLED_BY_SALON);
         try {
             return appointmentRepository.save(appointment);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la anularea programării de către salon: " + e.getMessage());
+            throw new RuntimeException("Eroare la anularea programarii de catre salon: " + e.getMessage());
         }
     }
 
@@ -211,7 +254,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Appointment markNoShow(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
         appointment.setStatus(AppointmentStatus.NO_SHOW);
 
         Client client = appointment.getClient();
@@ -239,7 +282,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Appointment completeAppointment(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
         appointment.setStatus(AppointmentStatus.COMPLETED);
 
         //adauga punct de loialitate clientului
@@ -260,19 +303,18 @@ public class AppointmentServiceImpl implements AppointmentService {
         } catch (Exception e) {
             throw new RuntimeException("Eroare la finalizarea programarii: " + e.getMessage());
         }
-
     }
 
     //actualizeaza statusul unei programari
     @Override
     public Appointment updateAppointmentStatus(Long id, AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
         appointment.setStatus(status);
         try {
             return appointmentRepository.save(appointment);
         } catch (Exception e) {
-            throw new RuntimeException("Eroare la actualizarea statusului programării: " + e.getMessage());
+            throw new RuntimeException("Eroare la actualizarea statusului programarii: " + e.getMessage());
         }
     }
 }

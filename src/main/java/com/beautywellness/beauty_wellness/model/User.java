@@ -11,8 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-//Clasa care reprezintă un utilizator al aplicației-implementează UserDetails pentru integrarea cu Spring Security
-
+//clasa care reprezinta un utilizator
 @Data
 @Builder
 @NoArgsConstructor
@@ -21,40 +20,40 @@ import java.util.List;
 @Table(name = "users")
 public class User implements UserDetails {
 
-    //Identificatorul unic al utilizatorului
+    //identificatorul unic al utilizatorului
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //Numele complet al utilizatorului
+    //numele complet
     private String name;
-    //Emailul utilizatorului- folosit la autentificare
+    //emailul
     @Column(unique = true)
     private String email;
-    //Parola criptată a utilizatorului
+    //parola criptata
     private String password;
-    //Rolul utilizatorului în aplicație (admin sau client)
+    //rolul utilizatorului
     @Enumerated(EnumType.STRING)
     private Role role;
-    //Returnează rolurile utilizatorului pentru Spring Security
+    //returneaza rolurile-springSecurity
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
-    //Returnează emailul ca username pentru autentificare
+    //returneaza emailul ca username pentru autentificare
     @Override
     public String getUsername() {
         return email;
     }
-    //Contul nu expiră niciodată
+    //contul nu expira niciodata
     @Override
     public boolean isAccountNonExpired() { return true; }
-    //Contul nu este blocat
+    //contul nu este blocat
     @Override
     public boolean isAccountNonLocked() { return true; }
-    //Credențialele nu expiră niciodată
+    //credentialele nu expira niciodata
     @Override
     public boolean isCredentialsNonExpired() { return true; }
-    //Contul este întotdeauna activ
+    //contul este intotdeauna activ
     @Override
     public boolean isEnabled() { return true; }
 }

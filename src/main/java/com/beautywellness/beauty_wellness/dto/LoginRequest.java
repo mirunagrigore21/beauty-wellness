@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//Datele trimise de utilizator la autentificare
+//datele trimise de utilizator la autentificare
 @Data
 @Builder
 @NoArgsConstructor

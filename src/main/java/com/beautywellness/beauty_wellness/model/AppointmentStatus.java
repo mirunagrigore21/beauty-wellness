@@ -1,6 +1,6 @@
 package com.beautywellness.beauty_wellness.model;
 
-// Enum care definește statusurile posibile ale unei programări
+//enum care defineste statusurile posibile ale unei programari
 public enum AppointmentStatus {
 
 

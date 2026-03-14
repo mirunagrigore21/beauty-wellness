@@ -4,38 +4,38 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-//Clasa care reprezintă un angajat în aplicația- Corespunde tabelului 'employees' din baza de date.
+//clasa care reprezinta un angajat in aplicatia
 
 @Data
 @Entity
 @Table(name = "employees")
 public class Employee {
-    // Identificatorul unic al angajatului
+    //identificatorul unic al angajatului
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // Prenumele angajatului
+    //prenumele
     @Column(nullable = false)
     private String firstName;
-    //Numele de familie al angajatului
+    //numele de familie
     @Column(nullable = false)
     private String lastName;
-    //Adresa de email a angajatului
+    //adresa de email
     @Column(unique = true, nullable = false)
     private String email;
-    //Numărul de telefon al angajatului
+    //numarul de telefon
     @Column(unique = true, nullable = false)
     private String phone;
-    //Funcția angajatului
+    //functia angajatului
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EmployeeRole role;
-    //Indică dacă angajatul este activ în sistem
+    //indică daca angajatul este activ
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean active = true;
-    //Data și ora înregistrării angajatului în sistem
+    //data si ora inregistrarii angajatului
     private LocalDateTime registeredAt;
-    //Metodă apelată automat de JPA înainte de salvarea entității în baza de date
+    //metoda apelata automat de JPA inainte de salvarea entitatii
     @PrePersist
     protected void onCreate() {
         registeredAt = LocalDateTime.now();

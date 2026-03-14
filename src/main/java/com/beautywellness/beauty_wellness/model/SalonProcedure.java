@@ -5,34 +5,34 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-// Clasa care reprezintă un serviciu oferit de salon
+//clasa care reprezinta un serviciu oferit de salon
 
 @Data
 @Entity
 @Table(name = "salon_services")
 public class SalonProcedure {
 
-    //Identificatorul unic al serviciului
+    //identificatorul unic al serviciului
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //Numele serviciului
+    //numele
     @Column(nullable = false)
     private String name;
-    //Descrierea detaliată a serviciului
+    //descrierea serviciului
     @Column(columnDefinition = "TEXT")
     private String description;
-    //Durata serviciului în minute
+    //durata ( minute )
     @Column(nullable = false)
     private Integer durationMinutes;
-    //Prețul serviciului
+    //pretul
     @Column(nullable = false)
     private BigDecimal price;
-    //Categoria serviciului (Beauty sau Wellness)
+    //categoria
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ServiceCategory category;
-    //Indică dacă serviciul este disponibil în salon
+    //indica daca serviciul este disponibil
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean available = true;
 }

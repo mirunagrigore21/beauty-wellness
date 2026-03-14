@@ -6,16 +6,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
-// Interfața care gestionează operațiile cu baza de date
+//interfata care gestioneaza operatiile cu baza de date
 @Repository
 public interface SalonProcedureRepository extends JpaRepository<SalonProcedure, Long> {
 
-    // Returnează toate serviciile dintr-o anumită categorie
+    //returneaza toate serviciile dintr-o anumita categorie
     List<SalonProcedure> findByCategory(ServiceCategory category);
-    // Returnează toate serviciile disponibile dintr-o anumită categorie
+    //returneaza toate serviciile disponibile dintr-o anumita categorie
     List<SalonProcedure> findByAvailableTrueAndCategory(ServiceCategory category);
-    // Returnează toate serviciile disponibile
+    //returneaza toate serviciile disponibile
     List<SalonProcedure> findByAvailableTrue();
-    // Caută servicii după nume
+    //cauta servicii dupa nume
     List<SalonProcedure> findByNameContainingIgnoreCase(String name);
 }

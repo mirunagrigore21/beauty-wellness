@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
-//DTO pentru trimiterea datelor unei programări către frontend
+//DTO pentru trimiterea datelor unei programari catre frontend
 @Data
 @Builder
 @NoArgsConstructor

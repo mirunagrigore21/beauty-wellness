@@ -5,25 +5,25 @@ import com.beautywellness.beauty_wellness.model.ServiceCategory;
 import java.util.List;
 import java.util.Optional;
 
-//Interfața care definește operațiile
+//interfata care defineste operatiile
 public interface SalonProcedureService {
 
-    //Salvează un serviciu nou în baza de date
+    //salveaza un serviciu nou in baza de date
     SalonProcedure saveSalonService(SalonProcedure salonProcedure);
-    //Returnează toate serviciile din baza de date
+    //returneaza toate serviciile din baza de date
     List<SalonProcedure> getAllSalonServices();
-    //Caută un serviciu după ID
+    //cauta un serviciu dupa ID
     Optional<SalonProcedure> getSalonServiceById(Long id);
-    //Actualizează datele unui serviciu existent
+    //actualizeaza datele unui serviciu existent
     SalonProcedure updateSalonService(Long id, SalonProcedure salonProcedure);
-    //Șterge un serviciu după ID
+    //sterge un serviciu dupa ID
     void deleteSalonService(Long id);
-    //Returnează toate serviciile dintr-o anumită categorie
+    //returneaza toate serviciile dintr-o anumita categorie
     List<SalonProcedure> getServicesByCategory(ServiceCategory category);
-    //Returnează toate serviciile disponibile
+    //returneaza toate serviciile disponibile
     List<SalonProcedure> getAvailableServices();
-    //Returnează toate serviciile disponibile dintr-o anumită categorie
+    //returneaza toate serviciile disponibile dintr-o anumita categorie
     List<SalonProcedure> getAvailableServicesByCategory(ServiceCategory category);
-    //Caută servicii după nume
+    //cauta servicii după nume
     List<SalonProcedure> searchServicesByName(String name);
 }

@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//Răspunsul trimis către utilizator după autentificare/înregistrare
+//raspunsul trimis catre utilizator dupa autentificare/inregistrare
 
 @Data
 @Builder
