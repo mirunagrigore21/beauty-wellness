@@ -33,19 +33,6 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    //endpoint temporar pentru creare admin
-    @PostMapping("/create-admin")
-    public ResponseEntity<String> createAdmin() {
-        User user = User.builder()
-                .name("Admin")
-                .email("admin@beautywellness.com")
-                .password(passwordEncoder.encode("admin123"))
-                .role(Role.ADMIN)
-                .build();
-        userRepository.save(user);
-        return ResponseEntity.ok("Admin creat cu succes!");
-    }
-
     //inregistrare client (POST /api/auth/register)
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
@@ -114,20 +101,13 @@ public class AuthController {
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
 
-        System.out.println(">>> LOGIN ATTEMPT: " + request.getEmail());
-
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
-            System.out.println(">>> AUTHENTICATION SUCCESS");
-        } catch (Exception e) {
-            System.out.println(">>> AUTHENTICATION FAILED: " + e.getMessage());
-            throw e;
-        }
+        //verifica emailul si parola
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
         //gaseste userul
         User user = userRepository.findByEmail(request.getEmail())

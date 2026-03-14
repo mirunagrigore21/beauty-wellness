@@ -33,7 +33,7 @@ public class SecurityConfig {
                         //endpoint-urile publice
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/create-admin").permitAll()
+
 
                         //doar ADMIN poate inregistra angajati
                         .requestMatchers("/api/auth/register-employee").hasRole("ADMIN")
@@ -49,8 +49,13 @@ public class SecurityConfig {
 
                         //toti autentificatii pot accesa programarile
                         .requestMatchers("/api/appointments/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
+
                         //ADMIN si EMPLOYEE pot gestiona programul de lucru
                         .requestMatchers("/api/work-schedules/**").hasAnyRole("ADMIN", "EMPLOYEE")
+
+                        //doar adminul poate vedea statisticile
+                        .requestMatchers("/api/statistics/**").hasRole("ADMIN")
+
                         //orice alt request necesita autentificare
                         .anyRequest().authenticated()
                 )
