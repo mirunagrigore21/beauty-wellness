@@ -12,6 +12,7 @@ import com.beautywellness.beauty_wellness.model.User;
 import com.beautywellness.beauty_wellness.repository.ClientRepository;
 import com.beautywellness.beauty_wellness.repository.EmployeeRepository;
 import com.beautywellness.beauty_wellness.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class AuthController {
 
     //inregistrare client (POST /api/auth/register)
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
 
         //creeaza user pentru autentificare
         User user = User.builder()
@@ -67,7 +68,7 @@ public class AuthController {
 
     //inregistrare angajat (doar ADMIN - POST /api/auth/register-employee)
     @PostMapping(value = "/register-employee", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthResponse> registerEmployee(@RequestBody RegisterEmployeeRequest request) {
+    public ResponseEntity<AuthResponse> registerEmployee(@Valid @RequestBody RegisterEmployeeRequest request) {
 
         //creeaza user pentru autentificare
         User user = User.builder()
@@ -99,7 +100,7 @@ public class AuthController {
 
     //autentificare — POST /api/auth/login
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 
         //verifica emailul si parola
         authenticationManager.authenticate(

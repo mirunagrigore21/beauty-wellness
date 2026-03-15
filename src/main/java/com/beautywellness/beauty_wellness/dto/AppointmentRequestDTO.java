@@ -1,21 +1,26 @@
 package com.beautywellness.beauty_wellness.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
-//DTO pentru primirea datelor unei programari de la frontend
+//datele trimise pentru crearea unei programari
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class AppointmentRequestDTO {
 
+    @NotNull(message = "Clientul este obligatoriu")
     private Long clientId;
+
+    @NotNull(message = "Angajatul este obligatoriu")
     private Long employeeId;
+
+    @NotNull(message = "Serviciul este obligatoriu")
     private Long serviceId;
+
+    @NotNull(message = "Data programarii este obligatorie")
+    @Future(message = "Data programarii trebuie sa fie in viitor")
     private LocalDateTime appointmentDateTime;
+
     private String notes;
 }
