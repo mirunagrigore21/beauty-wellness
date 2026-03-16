@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 
 //filtru care intercepteaza fiecare request si verifica token-ul JWT
@@ -32,23 +31,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         //extrage header-ul Authorization din request
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
 
-        //daca nu exista header sau nu incepe cu Bearer, continua fara autentificare
+        //daca nu exista header sau nu incepe cu "Bearer ", returneaza 401
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+            response.getWriter().flush();
             return;
         }
 
-        //extrage token-ul din header (dupa "Bearer ")
-        jwt = authHeader.substring(7);
+        //extrage token-ul din header- Bearer
+        final String jwt = authHeader.substring(7);
+        final String userEmail;
 
         try {
             userEmail = jwtService.extractUsername(jwt);
         } catch (Exception e) {
-            //token invalid sau expirat - continua fara autentificare
-            filterChain.doFilter(request, response);
+            //token invalid sau expirat - returneaza 401
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Token invalid sau expirat\"}");
+            response.getWriter().flush();
             return;
         }
 
