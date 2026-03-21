@@ -24,22 +24,32 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final CorsConfig corsConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                //configureaza CORS cu sursa noastra de configurare
+                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         //endpoint-urile publice
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
-
+                        .requestMatchers("/api/salon-procedures/**").permitAll()
+                        .requestMatchers("/api/employees/by-category/**").permitAll()
 
                         //doar ADMIN poate inregistra angajati
                         .requestMatchers("/api/auth/register-employee").hasRole("ADMIN")
 
+                        //clientii pot vedea angajatii filtrati dupa categorie pentru programare
+                        .requestMatchers("/api/employees/by-category/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
+
                         //doar adminul poate gestiona angajatii
                         .requestMatchers("/api/employees/**").hasRole("ADMIN")
+
+                        //clienti pot vedea propriile date
+                        .requestMatchers("/api/clients/email/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
 
                         //ADMIN si EMPLOYEE pot vedea clientii
                         .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "EMPLOYEE")

@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -116,5 +118,31 @@ public class EmployeeController {
                             "message", e.getMessage()
                     ));
         }
+    }
+    //returneaza angajatii disponibili pentru o categorie de serviciu (accesibil si de CLIENT)
+    @GetMapping("/by-category/{category}")
+    public ResponseEntity<List<EmployeeResponseDTO>> getEmployeesByCategory(@PathVariable String category) {
+        List<Employee> employees = employeeService.getAll();
+
+        Map<String, List<String>> categorieRol = new HashMap<>();
+        categorieRol.put("HAIR", List.of("HAIR_STYLIST"));
+        categorieRol.put("NAILS", List.of("MANICURIST", "PEDICURIST"));
+        categorieRol.put("MAKEUP", List.of("MAKEUP_ARTIST"));
+        categorieRol.put("SKIN_CARE", List.of("COSMETICIAN"));
+        categorieRol.put("EYEBROWS", List.of("EYEBROW_SPECIALIST"));
+        categorieRol.put("EYELASHES", List.of("EYELASH_TECHNICIAN"));
+        categorieRol.put("MASSAGE", List.of("MASSAGE_THERAPIST"));
+        categorieRol.put("SPA", List.of("SPA_THERAPIST"));
+        categorieRol.put("AROMATHERAPY", List.of("AROMATHERAPIST"));
+        categorieRol.put("REFLEXOLOGY", List.of("REFLEXOLOGIST"));
+
+        List<String> roluri = categorieRol.getOrDefault(category, List.of());
+
+        List<EmployeeResponseDTO> filtrati = employees.stream()
+                .filter(e -> roluri.contains(e.getRole().name()))
+                .map(employeeMapper::toResponseDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filtrati);
     }
 }

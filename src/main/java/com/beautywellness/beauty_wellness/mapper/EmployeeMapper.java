@@ -23,6 +23,7 @@ public class EmployeeMapper {
     //converteste Employee - ResponseDTO
     public EmployeeResponseDTO toResponseDTO(Employee employee) {
         return EmployeeResponseDTO.builder()
+                .id(employee.getId())
                 .firstName(employee.getFirstName())
                 .lastName(employee.getLastName())
                 .role(employee.getRole())

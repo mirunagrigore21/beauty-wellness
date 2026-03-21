@@ -29,6 +29,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        //lasa sa treaca fara autentificare endpoint-urile publice
+        if (path.startsWith("/api/auth/") ||
+                path.startsWith("/api/salon-procedures") ||
+                path.startsWith("/api/employees/by-category")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         //extrage header-ul Authorization din request
         final String authHeader = request.getHeader("Authorization");
 
@@ -41,7 +50,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        //extrage token-ul din header- Bearer
+        //extrage token-ul din header dupa "Bearer "
         final String jwt = authHeader.substring(7);
         final String userEmail;
 
