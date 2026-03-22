@@ -12,7 +12,6 @@ import com.beautywellness.beauty_wellness.repository.SalonProcedureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-
 //clasa care converteste intre Appointment si DTO
 @Component
 @RequiredArgsConstructor
@@ -21,6 +20,9 @@ public class AppointmentMapper {
     private final ClientRepository clientRepository;
     private final EmployeeRepository employeeRepository;
     private final SalonProcedureRepository salonProcedureRepository;
+    private final ClientMapper clientMapper;
+    private final EmployeeMapper employeeMapper;
+    private final SalonProcedureMapper salonProcedureMapper;
 
     //converteste RequestDTO - Appointment
     public Appointment toEntity(AppointmentRequestDTO dto) {
@@ -43,9 +45,10 @@ public class AppointmentMapper {
     //converteste Appointment - ResponseDTO
     public AppointmentResponseDTO toResponseDTO(Appointment appointment) {
         return AppointmentResponseDTO.builder()
-                .clientName(appointment.getClient().getFirstName() + " " + appointment.getClient().getLastName())
-                .employeeName(appointment.getEmployee().getFirstName() + " " + appointment.getEmployee().getLastName())
-                .serviceName(appointment.getService().getName())
+                .id(appointment.getId())
+                .client(clientMapper.toResponseDTO(appointment.getClient()))
+                .employee(employeeMapper.toResponseDTO(appointment.getEmployee()))
+                .service(salonProcedureMapper.toResponseDTO(appointment.getService()))
                 .appointmentDateTime(appointment.getAppointmentDateTime())
                 .status(appointment.getStatus())
                 .notes(appointment.getNotes())

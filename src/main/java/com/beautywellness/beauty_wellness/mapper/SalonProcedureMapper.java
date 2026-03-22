@@ -5,7 +5,7 @@ import com.beautywellness.beauty_wellness.dto.SalonProcedureResponseDTO;
 import com.beautywellness.beauty_wellness.model.SalonProcedure;
 import org.springframework.stereotype.Component;
 
-//clasa care  convertește intre SalonProcedure si DTO
+//clasa care converteste intre SalonProcedure si DTO
 @Component
 public class SalonProcedureMapper {
 
@@ -23,6 +23,7 @@ public class SalonProcedureMapper {
     //converteste SalonProcedure - ResponseDTO
     public SalonProcedureResponseDTO toResponseDTO(SalonProcedure procedure) {
         return SalonProcedureResponseDTO.builder()
+                .id(procedure.getId())
                 .name(procedure.getName())
                 .description(procedure.getDescription())
                 .durationMinutes(procedure.getDurationMinutes())

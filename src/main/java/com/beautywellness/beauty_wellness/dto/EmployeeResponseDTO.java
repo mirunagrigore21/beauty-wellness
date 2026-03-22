@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeResponseDTO {
-
     private Long id;
     private String firstName;
     private String lastName;
+    private String email;  // adauga asta
     private EmployeeRole role;
     private Boolean active;
 }

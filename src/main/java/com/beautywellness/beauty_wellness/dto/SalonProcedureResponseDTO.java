@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class SalonProcedureResponseDTO {
 
+    private Long id;
     private String name;
     private String description;
     private Integer durationMinutes;

@@ -33,41 +33,41 @@ public class SecurityConfig {
                 //configureaza CORS cu sursa noastra de configurare
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        //endpoint-urile publice
-                        .requestMatchers("/api/auth/register").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/salon-procedures/**").permitAll()
-                        .requestMatchers("/api/employees/by-category/**").permitAll()
+                                //endpoint-urile publice
+                                .requestMatchers("/api/auth/register").permitAll()
+                                .requestMatchers("/api/auth/login").permitAll()
+                                .requestMatchers("/api/salon-procedures/**").permitAll()
+                                .requestMatchers("/api/employees/by-category/**").permitAll()
 
-                        //doar ADMIN poate inregistra angajati
-                        .requestMatchers("/api/auth/register-employee").hasRole("ADMIN")
+                                //doar ADMIN poate inregistra angajati
+                                .requestMatchers("/api/auth/register-employee").hasRole("ADMIN")
 
-                        //clientii pot vedea angajatii filtrati dupa categorie pentru programare
-                        .requestMatchers("/api/employees/by-category/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
+                                //angajatii pot vedea propriile date dupa email
+                                .requestMatchers("/api/employees/email/**").hasAnyRole("ADMIN", "EMPLOYEE")
 
-                        //doar adminul poate gestiona angajatii
-                        .requestMatchers("/api/employees/**").hasRole("ADMIN")
+                                //doar adminul poate gestiona angajatii
+                                .requestMatchers("/api/employees/**").hasRole("ADMIN")
 
-                        //clienti pot vedea propriile date
-                        .requestMatchers("/api/clients/email/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
+                                //clienti pot vedea propriile date
+                                .requestMatchers("/api/clients/email/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
 
-                        //ADMIN si EMPLOYEE pot vedea clientii
-                        .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                                //ADMIN si EMPLOYEE pot vedea clientii
+                                .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "EMPLOYEE")
 
-                        //ADMIN si EMPLOYEE pot gestiona procedurile
-                        .requestMatchers("/api/salon-procedures/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                                //ADMIN si EMPLOYEE pot gestiona procedurile
+                                .requestMatchers("/api/salon-procedures/**").hasAnyRole("ADMIN", "EMPLOYEE")
 
-                        //toti autentificatii pot accesa programarile
-                        .requestMatchers("/api/appointments/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
+                                //toti autentificatii pot accesa programarile
+                                .requestMatchers("/api/appointments/**").hasAnyRole("ADMIN", "EMPLOYEE", "CLIENT")
 
-                        //ADMIN si EMPLOYEE pot gestiona programul de lucru
-                        .requestMatchers("/api/work-schedules/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                                //ADMIN si EMPLOYEE pot gestiona programul de lucru
+                                .requestMatchers("/api/work-schedules/**").hasAnyRole("ADMIN", "EMPLOYEE")
 
-                        //doar adminul poate vedea statisticile
-                        .requestMatchers("/api/statistics/**").hasRole("ADMIN")
+                                //doar adminul poate vedea statisticile
+                                .requestMatchers("/api/statistics/**").hasRole("ADMIN")
 
-                        //orice alt request necesita autentificare
-                        .anyRequest().authenticated()
+                                //orice alt request necesita autentificare
+                                .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         //nu folosim sesiuni

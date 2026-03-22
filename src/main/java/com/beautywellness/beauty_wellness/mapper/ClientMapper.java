@@ -5,7 +5,7 @@ import com.beautywellness.beauty_wellness.dto.ClientResponseDTO;
 import com.beautywellness.beauty_wellness.model.Client;
 import org.springframework.stereotype.Component;
 
-//clasa care convertește intre Client si DTO
+//clasa care converteste intre Client si DTO
 @Component
 public class ClientMapper {
 
@@ -24,12 +24,19 @@ public class ClientMapper {
     //converteste Client - ResponseDTO
     public ClientResponseDTO toResponseDTO(Client client) {
         return ClientResponseDTO.builder()
+                .id(client.getId())
                 .firstName(client.getFirstName())
                 .lastName(client.getLastName())
                 .email(client.getEmail())
                 .phone(client.getPhone())
                 .birthDate(client.getBirthDate())
-                .notes(client.getNotes())
+                .noShowScore(client.getNoShowScore())
+                .blocked(client.getBlocked())
+                .blockedReason(client.getBlockedReason())
+                .loyaltyPoints(client.getLoyaltyPoints())
+                .hasCoupon(client.getHasCoupon())
+                .couponCode(client.getCouponCode())
+                .registeredAt(client.getRegisteredAt())
                 .build();
     }
 }

@@ -14,9 +14,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AppointmentResponseDTO {
 
-    private String clientName;
-    private String employeeName;
-    private String serviceName;
+    private Long id;
+    private ClientResponseDTO client;
+    private EmployeeResponseDTO employee;
+    private SalonProcedureResponseDTO service;
     private LocalDateTime appointmentDateTime;
     private AppointmentStatus status;
     private String notes;

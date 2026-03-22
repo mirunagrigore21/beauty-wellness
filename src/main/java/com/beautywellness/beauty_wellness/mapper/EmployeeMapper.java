@@ -26,6 +26,7 @@ public class EmployeeMapper {
                 .id(employee.getId())
                 .firstName(employee.getFirstName())
                 .lastName(employee.getLastName())
+                .email(employee.getEmail())
                 .role(employee.getRole())
                 .active(employee.getActive())
                 .build();
