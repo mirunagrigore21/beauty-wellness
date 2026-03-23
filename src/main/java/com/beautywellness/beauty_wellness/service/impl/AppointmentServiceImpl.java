@@ -41,6 +41,18 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!isEmployeeAvailable(appointment.getEmployee().getId(), start, end)) {
             throw new RuntimeException("Angajatul nu este disponibil in intervalul selectat");
         }
+
+        //verifica daca programarea are cupon si il marcheaza ca folosit
+        if (appointment.getNotes() != null && appointment.getNotes().startsWith("CUPON:")) {
+            Client client = appointment.getClient();
+            appointment.setDiscount(20.0);
+            client.setHasCoupon(false);
+            client.setCouponCode(null);
+            clientRepository.save(client);
+        } else {
+            appointment.setDiscount(0.0);
+        }
+
         try {
             return appointmentRepository.save(appointment);
         } catch (Exception e) {

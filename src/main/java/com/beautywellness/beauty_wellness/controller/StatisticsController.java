@@ -3,6 +3,8 @@ package com.beautywellness.beauty_wellness.controller;
 import com.beautywellness.beauty_wellness.repository.AppointmentRepository;
 import com.beautywellness.beauty_wellness.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,10 @@ public class StatisticsController {
 
         //veniturile totale
         Double totalRevenue = appointmentRepository.getTotalRevenueByMonth(month, year);
-        stats.put("venituriTotale", totalRevenue != null ? totalRevenue : 0.0);
+        Double totalDiscounts = appointmentRepository.getTotalDiscountsByMonth(month, year);
+        double venituriNete = (totalRevenue != null ? totalRevenue : 0.0) - (totalDiscounts != null ? totalDiscounts : 0.0);
+        stats.put("venituriTotale", venituriNete);
+        stats.put("totalReduceri", totalDiscounts != null ? totalDiscounts : 0.0);
 
         //venitul mediu per programare
         Double avgRevenue = appointmentRepository.getAverageRevenuePerAppointment(month, year);

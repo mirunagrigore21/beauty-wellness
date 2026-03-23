@@ -24,6 +24,7 @@ public class AppointmentMapper {
     private final EmployeeMapper employeeMapper;
     private final SalonProcedureMapper salonProcedureMapper;
 
+
     //converteste RequestDTO - Appointment
     public Appointment toEntity(AppointmentRequestDTO dto) {
         Client client = clientRepository.findById(dto.getClientId())
@@ -42,7 +43,7 @@ public class AppointmentMapper {
         return appointment;
     }
 
-    //converteste Appointment - ResponseDTO
+    //converteste Appointment-ResponseDTO
     public AppointmentResponseDTO toResponseDTO(Appointment appointment) {
         return AppointmentResponseDTO.builder()
                 .id(appointment.getId())
@@ -52,6 +53,7 @@ public class AppointmentMapper {
                 .appointmentDateTime(appointment.getAppointmentDateTime())
                 .status(appointment.getStatus())
                 .notes(appointment.getNotes())
+                .discount(appointment.getDiscount())
                 .build();
     }
 }

@@ -59,6 +59,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("SELECT SUM(a.service.price) FROM Appointment a WHERE MONTH(a.appointmentDateTime) = :month AND YEAR(a.appointmentDateTime) = :year AND a.status = 'COMPLETED'")
     Double getTotalRevenueByMonth(@Param("month") int month, @Param("year") int year);
 
+    //returneaza totalul reducerilor dintr-o luna
+    @Query("SELECT COALESCE(SUM(a.discount), 0) FROM Appointment a " +
+            "WHERE MONTH(a.appointmentDateTime) = :month " +
+            "AND YEAR(a.appointmentDateTime) = :year " +
+            "AND a.status = 'COMPLETED'")
+    Double getTotalDiscountsByMonth(@Param("month") int month, @Param("year") int year);
     //returneaza numarul de programari pe zi dintr-o luna
     @Query("SELECT DAY(a.appointmentDateTime), COUNT(a) FROM Appointment a WHERE MONTH(a.appointmentDateTime) = :month AND YEAR(a.appointmentDateTime) = :year GROUP BY DAY(a.appointmentDateTime)")
     List<Object[]> countAppointmentsByDayOfMonth(@Param("month") int month, @Param("year") int year);

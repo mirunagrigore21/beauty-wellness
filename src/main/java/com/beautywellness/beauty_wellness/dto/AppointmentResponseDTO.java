@@ -21,4 +21,5 @@ public class AppointmentResponseDTO {
     private LocalDateTime appointmentDateTime;
     private AppointmentStatus status;
     private String notes;
+    private Double discount;
 }
