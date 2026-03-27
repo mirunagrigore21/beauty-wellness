@@ -21,11 +21,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     //repository pentru actualizarea datelor clientului (no-show, blocare)
     private final ClientRepository clientRepository;
 
-    //salveaza o programare noua dupa ce verifica daca angajatul este disponibil
     @Override
     public Appointment saveAppointment(Appointment appointment) {
         LocalDateTime start = appointment.getAppointmentDateTime();
         LocalDateTime end = start.plusMinutes(appointment.getService().getDurationMinutes());
+        if (start.getDayOfWeek().getValue() == 7) {
+            throw new RuntimeException("Salonul este inchis duminica!");
+        }
 
         //verifica daca angajatul poate efectua serviciul selectat
         if (!isEmployeeEligibleForService(
@@ -41,16 +43,65 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!isEmployeeAvailable(appointment.getEmployee().getId(), start, end)) {
             throw new RuntimeException("Angajatul nu este disponibil in intervalul selectat");
         }
+        //verifica daca clientul este blocat
+        if (Boolean.TRUE.equals(appointment.getClient().getBlocked())) {
+            throw new RuntimeException("Contul tău este blocat din cauza neprezentărilor repetate. Contactează salonul pentru deblocare!");
+        }
+        //verifica daca clientul nu are deja o programare in acelasi interval
+        List<AppointmentStatus> excludedStatuses = List.of(
+                AppointmentStatus.CANCELLED_BY_CLIENT,
+                AppointmentStatus.CANCELLED_BY_SALON,
+                AppointmentStatus.NO_SHOW
+        );
 
-        //verifica daca programarea are cupon si il marcheaza ca folosit
-        if (appointment.getNotes() != null && appointment.getNotes().startsWith("CUPON:")) {
-            Client client = appointment.getClient();
-            appointment.setDiscount(20.0);
-            client.setHasCoupon(false);
-            client.setCouponCode(null);
-            clientRepository.save(client);
-        } else {
-            appointment.setDiscount(0.0);
+        List<Appointment> conflicteClient = appointmentRepository
+                .findByClientId(appointment.getClient().getId())
+                .stream()
+                .filter(a -> !excludedStatuses.contains(a.getStatus()))
+                .filter(a -> {
+                    LocalDateTime aStart = a.getAppointmentDateTime();
+                    LocalDateTime aEnd = aStart.plusMinutes(a.getService().getDurationMinutes());
+                    return start.isBefore(aEnd) && end.isAfter(aStart);
+                })
+                .collect(java.util.stream.Collectors.toList());
+
+        if (!conflicteClient.isEmpty()) {
+            throw new RuntimeException("Ai deja o programare in acest interval de timp!");
+        }
+
+        //verifica si valideaza cuponul daca exista in note
+        Client client = appointment.getClient();
+        appointment.setDiscount(0.0);
+
+        if (appointment.getNotes() != null && appointment.getNotes().contains("CUPON:")) {
+            String notes = appointment.getNotes();
+
+            //extrage codul cuponului din note
+            String codCupon = notes.substring(notes.indexOf("CUPON:") + 6).trim();
+
+            //elimina textul (-20 RON) daca exista
+            if (codCupon.contains("(-20 RON)")) {
+                codCupon = codCupon.replace("(-20 RON)", "").trim();
+            }
+
+            //elimina orice note suplimentare dupa |
+            if (codCupon.contains("|")) {
+                codCupon = codCupon.substring(0, codCupon.indexOf("|")).trim();
+            }
+
+            //valideaza ca clientul are cuponul si codul e corect
+            if (Boolean.TRUE.equals(client.getHasCoupon())
+                    && client.getCouponCode() != null
+                    && client.getCouponCode().equals(codCupon)) {
+
+                //aplica reducerea si consuma cuponul
+                appointment.setDiscount(20.0);
+                client.setHasCoupon(false);
+                client.setCouponCode(null);
+                clientRepository.save(client);
+            } else {
+                throw new RuntimeException("Cuponul este invalid sau nu mai este disponibil!");
+            }
         }
 
         try {
@@ -59,7 +110,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Eroare la salvarea programarii: " + e.getMessage());
         }
     }
-
     //returneaza toate programarile
     @Override
     public List<Appointment> getAllAppointments() {
@@ -88,6 +138,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         LocalDateTime start = appointment.getAppointmentDateTime();
         LocalDateTime end = start.plusMinutes(appointment.getService().getDurationMinutes());
+        if (start.getDayOfWeek().getValue() == 7) {
+            throw new RuntimeException("Salonul este inchis duminica!");
+        }
 
         //verifica daca angajatul poate efectua serviciul selectat
         if (!isEmployeeEligibleForService(
@@ -115,6 +168,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         } catch (Exception e) {
             throw new RuntimeException("Eroare la actualizarea programarii: " + e.getMessage());
         }
+
     }
 
     //sterge o programare dupa ID
@@ -267,6 +321,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Appointment markNoShow(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Programarea nu a fost gasita"));
+
         appointment.setStatus(AppointmentStatus.NO_SHOW);
 
         Client client = appointment.getClient();
@@ -274,11 +329,28 @@ public class AppointmentServiceImpl implements AppointmentService {
         client.setNoShowScore(newScore);
 
         if (newScore >= 3) {
-            //blocam clientul dupa 3 no-show-uri
             client.setBlocked(true);
             client.setBlockedReason("Cont blocat automat dupa 3 neprezentari");
+            client.setWarningMessage(null);
+
+
+            // anulam automat toate programarile viitoare active ale clientului
+            List<Appointment> programariViitoare = appointmentRepository
+                    .findByClientId(client.getId())
+                    .stream()
+                    .filter(a -> a.getAppointmentDateTime().isAfter(LocalDateTime.now()))
+                    .filter(a -> a.getStatus() == AppointmentStatus.PENDING
+                            || a.getStatus() == AppointmentStatus.CONFIRMED)
+                    .collect(java.util.stream.Collectors.toList());
+
+            for (Appointment a : programariViitoare) {
+                a.setStatus(AppointmentStatus.CANCELLED_BY_SALON);
+            }
+
+            appointmentRepository.saveAll(programariViitoare);
+
         } else if (newScore == 2) {
-            //avertisment dupa 2 no-show-uri
+            // avertisment dupa 2 no-show-uri
             client.setWarningMessage("Atentie! Ai acumulat 2 neprezentari. La urmatoarea neprezentare contul tau va fi blocat!");
         }
 

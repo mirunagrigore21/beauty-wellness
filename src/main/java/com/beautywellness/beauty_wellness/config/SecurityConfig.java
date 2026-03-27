@@ -3,6 +3,7 @@ package com.beautywellness.beauty_wellness.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,7 +39,10 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/login").permitAll()
                                 .requestMatchers("/api/salon-procedures/**").permitAll()
                                 .requestMatchers("/api/employees/by-category/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/contact-messages").permitAll()
 
+                                //doar ADMIN poate vedea mesajele
+                                .requestMatchers("/api/contact-messages/**").hasRole("ADMIN")
                                 //doar ADMIN poate inregistra angajati
                                 .requestMatchers("/api/auth/register-employee").hasRole("ADMIN")
 

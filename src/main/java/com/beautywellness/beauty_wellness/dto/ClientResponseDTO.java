@@ -24,6 +24,7 @@ public class ClientResponseDTO {
     private Integer noShowScore;
     private Boolean blocked;
     private String blockedReason;
+    private String warningMessage;
     private Integer loyaltyPoints;
     private Boolean hasCoupon;
     private String couponCode;

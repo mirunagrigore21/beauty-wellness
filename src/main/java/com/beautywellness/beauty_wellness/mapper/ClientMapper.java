@@ -33,6 +33,7 @@ public class ClientMapper {
                 .noShowScore(client.getNoShowScore())
                 .blocked(client.getBlocked())
                 .blockedReason(client.getBlockedReason())
+                .warningMessage(client.getWarningMessage())
                 .loyaltyPoints(client.getLoyaltyPoints())
                 .hasCoupon(client.getHasCoupon())
                 .couponCode(client.getCouponCode())

@@ -29,12 +29,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
+        String path = request.getServletPath();
 
         //lasa sa treaca fara autentificare endpoint-urile publice
         if (path.startsWith("/api/auth/") ||
                 path.startsWith("/api/salon-procedures") ||
-                path.startsWith("/api/employees/by-category")) {
+                path.startsWith("/api/employees/by-category") ||
+                (path.equals("/api/contact-messages") && "POST".equalsIgnoreCase(request.getMethod()))) {
             filterChain.doFilter(request, response);
             return;
         }
